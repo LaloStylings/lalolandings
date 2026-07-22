@@ -5,10 +5,11 @@
 //
 // Required environment variables:
 //   RESEND_API_KEY      Resend API key
-//   CONTACT_EMAIL_TO    destination inbox (do NOT hardcode)
+//   CONTACT_EMAIL_TO    destination inbox(es); comma-separated for multiple
+//                       recipients (do NOT hardcode)
 // Optional:
-//   CONTACT_EMAIL_FROM  verified sender, e.g. "Lalo Stylings <hello@lalostylings.com>"
-//                       (defaults to Resend's onboarding sender for first-run testing)
+//   CONTACT_EMAIL_FROM  verified sender (defaults to the verified lalostylings.com
+//                       domain sender below)
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -76,11 +77,17 @@ export async function POST(request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_EMAIL_TO;
+  // CONTACT_EMAIL_TO is a comma-separated list. Split, trim, drop empties.
+  // A single address without commas yields a one-element array, which is fine.
+  const to = (process.env.CONTACT_EMAIL_TO || "")
+    .split(",")
+    .map((addr) => addr.trim())
+    .filter(Boolean);
   const from =
-    process.env.CONTACT_EMAIL_FROM || "Lalo Stylings <onboarding@resend.dev>";
+    process.env.CONTACT_EMAIL_FROM ||
+    "Lalo Stylings <noreply@lalostylings.com>";
 
-  if (!apiKey || !to) {
+  if (!apiKey || to.length === 0) {
     console.error(
       "[contact] Missing RESEND_API_KEY or CONTACT_EMAIL_TO environment variable."
     );
