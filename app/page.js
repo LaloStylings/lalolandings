@@ -11,6 +11,7 @@ import QuoteBuilder from "./components/QuoteBuilder";
 import Faq from "./components/Faq";
 import FinalCta from "./components/FinalCta";
 import Footer from "./components/Footer";
+import StructuredData from "./components/StructuredData";
 
 // Order: Nav → Hero → Trust bar → What We Create → Our Story → The Process →
 // Why we're different → Client stories → Gallery → FAQ → CTA → Footer.
@@ -20,6 +21,7 @@ import Footer from "./components/Footer";
 export default function Page() {
   return (
     <>
+      <StructuredData />
       <Nav />
       <main>
         <Hero />

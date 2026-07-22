@@ -1,6 +1,7 @@
 import styles from "./Footer.module.css";
 
-const SOCIAL = [
+// Exported so the JSON-LD (JewelryStore.sameAs) reuses the exact same links.
+export const SOCIAL = [
   { name: "Instagram", href: "https://www.instagram.com/lalostylings/" },
   { name: "TikTok", href: "https://www.tiktok.com/@lalostylings" },
   {

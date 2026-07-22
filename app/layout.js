@@ -29,10 +29,53 @@ const arimo = Arimo({
   variable: "--font-arimo",
 });
 
+const SITE_URL = "https://mkt.lalostylings.com";
+const TITLE = "Custom Fine Jewelry Handcrafted in Los Angeles | Lalo Stylings";
+const DESCRIPTION =
+  "Custom engagement rings, bespoke designs and heirloom redesigns, handcrafted by master jewelers in our Los Angeles studio. Free consultation, no obligation. 31 years of craftsmanship.";
+// TODO: replace /hero-poster.jpg with a dedicated 1200x630 OG image (designed piece).
+const OG_IMAGE = "/hero-poster.jpg";
+
 export const metadata = {
-  title: "Custom Engagement Rings, Handcrafted in Los Angeles · Lalo Stylings",
-  description:
-    "The ring you're imagining doesn't exist in a store, so we'll make it. Custom engagement rings and bespoke fine jewelry, handcrafted in our Los Angeles workshop. No middlemen. Start your design free.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Lalo Stylings",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "Custom fine jewelry handcrafted by Lalo Stylings in Los Angeles",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({ children }) {
