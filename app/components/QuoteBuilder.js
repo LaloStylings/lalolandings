@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { QUOTE_STEPS } from "./quoteSteps";
 import { getLenis } from "./lenisRef";
+import { pushToDataLayer } from "@/lib/gtm";
 import styles from "./QuoteBuilder.module.css";
 
 const STORAGE_KEY = "lalo-quote-v3";
@@ -30,6 +31,7 @@ export default function QuoteBuilder() {
   const keepBtnRef = useRef(null);
   const successCloseRef = useRef(null);
   const advanceTimer = useRef(null);
+  const tracked = useRef(false); // one conversion event per submission
   const stateRef = useRef({ index: 0, status: "idle", confirming: false });
   stateRef.current = { index, status, confirming };
 
@@ -138,6 +140,16 @@ export default function QuoteBuilder() {
       });
 
       if (res.ok) {
+        // Single conversion event, fired once per submission, just before the
+        // confirmation screen. No PII (name / email / phone) ever goes here.
+        if (!tracked.current) {
+          tracked.current = true;
+          pushToDataLayer({
+            event: "quote_submitted",
+            occasion: answers.occasion,
+            looking_for: answers.lookingFor,
+          });
+        }
         setStatus("success");
         try {
           sessionStorage.removeItem(STORAGE_KEY);
@@ -265,6 +277,7 @@ export default function QuoteBuilder() {
         setAnswers({});
         setContact(EMPTY_CONTACT);
         setErrors({});
+        tracked.current = false; // allow a fresh submission to fire again
       }
     };
     d.addEventListener("cancel", onCancel);

@@ -1,4 +1,5 @@
 import { Cormorant_Unicase, Cormorant_Garamond, Arimo } from "next/font/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 import SmoothScroll from "./components/SmoothScroll";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
   return (
     <html
       lang="en"
@@ -50,6 +52,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
+      {gtmId && <GoogleTagManager gtmId={gtmId} />}
       <body>
         <SmoothScroll>{children}</SmoothScroll>
       </body>
