@@ -1,40 +1,92 @@
+/* ============================================================
+   Lalo Stylings — Design System v2 (rounded, elevated, airy)
+   Hueso/blanco dominante · verde #10271E como acento.
+   The previous "square corners / radius 0" rule is REVOKED.
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color (unchanged) */
+  --green: #10271e;
+  --green-6: rgba(16, 39, 30, 0.06); /* chips / badges */
+  --green-5: rgba(16, 39, 30, 0.05); /* selected fill */
+  --green-tint: rgba(16, 39, 30, 0.06);
+  --bg: #faf7f2; /* warm hueso — dominant */
+  --bg-soft: #f3efe7;
+  --white: #ffffff; /* pure white surfaces */
+  --ink: #1e1e1c;
+  --ink-soft: rgba(30, 30, 28, 0.62);
+  --on-green: #faf7f2;
+  --on-green-soft: rgba(250, 247, 242, 0.72);
+  --line: rgba(30, 30, 28, 0.1);
+  --field-border: rgba(30, 30, 28, 0.18);
+  --line-on-green: rgba(250, 247, 242, 0.22);
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 18px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+
+  /* Shadows — soft, layered, never hard */
+  --shadow-sm: 0 1px 3px rgba(16, 39, 30, 0.04),
+    0 4px 12px rgba(16, 39, 30, 0.04);
+  --shadow-md: 0 2px 6px rgba(16, 39, 30, 0.05),
+    0 12px 28px rgba(16, 39, 30, 0.07);
+  --shadow-lg: 0 4px 12px rgba(16, 39, 30, 0.06),
+    0 24px 48px rgba(16, 39, 30, 0.1);
+
+  /* Layout */
+  --maxw: 1180px;
+  --gutter: 32px;
+  --section-y: 120px;
+
+  /* Type */
+  --font-display: var(--font-cormorant), "Cormorant Unicase", serif;
+  --font-body: var(--font-arimo), Arial, Helvetica, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (max-width: 720px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --gutter: 22px;
+    --section-y: 80px;
   }
+}
+
+/* Clearance so the floating mobile CTA pill never covers page content. */
+@media (max-width: 860px) {
+  body {
+    padding-bottom: 84px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
   height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+img,
+svg {
+  display: block;
+  max-width: 100%;
 }
 
 a {
@@ -42,8 +94,255 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+/* Accessible keyboard focus — green, offset. */
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* --- Layout primitives ------------------------------------ */
+
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+}
+
+/* Section surfaces — alternated for rhythm (see page.js). */
+.surface-white {
+  background: var(--white);
+}
+
+/* --- Type primitives -------------------------------------- */
+
+/* Cormorant Unicase (uppercase) is reserved for H1 and H2 ONLY. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: clamp(44px, 6.5vw, 88px);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: clamp(32px, 4.5vw, 54px);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: var(--green);
+}
+.h2--on-green {
+  color: var(--on-green);
+}
+
+/* --- Chips / badges / eyebrows ---------------------------- */
+/* Replaces loose uppercase eyebrows. Pill, green at 6%, green text. */
+.chip,
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-6);
+  color: var(--green);
+  border-radius: var(--r-pill);
+  padding: 8px 18px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.chip--on-green,
+.eyebrow--on-green {
+  background: rgba(250, 247, 242, 0.14);
+  color: var(--on-green);
+}
+
+/* Standard section header: chip + H2 (+ optional lede), centered. */
+.section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.lede {
+  color: var(--ink-soft);
+  font-size: clamp(15px, 1.6vw, 17px);
+  max-width: 56ch;
+}
+
+/* --- Buttons — full pill, Title Case, weight 500 ---------- */
+
+.btn {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 16px 42px; /* right room reserved for the hover arrow — no shift */
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  /* No vertical movement on hover — color + arrow only. */
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover affordance: a → fades and slides in from the left on the right side.
+   Absolute + reserved padding means the label never jumps. */
+.btn::after {
+  content: "→";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  opacity: 0;
+  transform: translate(-6px, -50%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.btn:hover::after {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* Color inverts on hover, consistently across variants. */
+.btn--primary {
+  background: var(--green);
+  color: var(--on-green);
+  border-color: var(--green);
+  box-shadow: var(--shadow-sm);
+}
+.btn--primary:hover {
+  background: var(--on-green);
+  color: var(--green);
+  border-color: var(--on-green);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--secondary,
+.btn--ghost {
+  background: var(--white);
+  color: var(--green);
+  border-color: rgba(16, 39, 30, 0.28);
+  box-shadow: var(--shadow-sm);
+}
+.btn--secondary:hover,
+.btn--ghost:hover {
+  background: var(--green);
+  color: var(--on-green);
+  border-color: var(--green);
+  box-shadow: var(--shadow-md);
+}
+
+/* On a green / dark surface: hueso fill, green text; hover hollows out. */
+.btn--on-green {
+  background: var(--on-green);
+  color: var(--green);
+  border-color: var(--on-green);
+  box-shadow: var(--shadow-sm);
+}
+.btn--on-green:hover {
+  background: transparent;
+  color: var(--on-green);
+  border-color: var(--on-green);
+  box-shadow: var(--shadow-md);
+}
+
+/* Modal stepper buttons carry literal ← / → in their labels — no pseudo arrow. */
+dialog .btn::after {
+  content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::after {
+    display: none; /* color change only, no arrow animation */
+  }
+}
+
+/* --- Card primitive --------------------------------------- */
+/* White on hueso so it separates by shadow, not by a border. */
+.card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Signature divider (hairline + rotated diamond) ------- */
+
+.signature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.signature::before,
+.signature::after {
+  content: "";
+  height: 1px;
+  width: min(160px, 28vw);
+}
+.signature::before {
+  background: linear-gradient(90deg, transparent, var(--green));
+}
+.signature::after {
+  background: linear-gradient(90deg, var(--green), transparent);
+}
+.signature__diamond {
+  width: 7px;
+  height: 7px;
+  margin-inline: 16px;
+  background: var(--green);
+  transform: rotate(45deg);
+  flex: none;
+}
+.signature--on-green::before {
+  background: linear-gradient(90deg, transparent, var(--on-green));
+}
+.signature--on-green::after {
+  background: linear-gradient(90deg, var(--on-green), transparent);
+}
+.signature--on-green .signature__diamond {
+  background: var(--on-green);
+}
+
+/* --- Scroll reveal (progressive enhancement) -------------- */
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

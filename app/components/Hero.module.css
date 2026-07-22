@@ -1,0 +1,173 @@
+/* Full-bleed hero: image + scrim run edge-to-edge; only the TEXT is contained. */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center; /* text block vertically centered, not pinned */
+  width: 100%;
+  /* Exactly one screen tall. dvh so Safari's mobile bar doesn't clip content;
+     100vh is the fallback for older browsers. */
+  height: 100vh;
+  height: 100dvh;
+  /* Top padding = initial (expanded) header height (~120px), so the block sits
+     optically centered in the visible space below the fixed header. */
+  padding-block: 120px 40px;
+  background: var(--green);
+  overflow: hidden;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+}
+
+/* Background media — video (desktop) or poster image (mobile/reduced-motion).
+   Sits below the scrim; subject framed to the right, away from the text. */
+.video,
+.poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+  z-index: 0;
+}
+.poster {
+  background-size: cover;
+  background-position: center right;
+}
+
+/* Scrim: content is centered now, so the overlay is radial — darkest at the
+   center where the text lives, easing out toward the edges so the video still
+   breathes at the corners. Flat base keeps AA over bright video frames. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+      ellipse 85% 80% at 50% 50%,
+      rgba(16, 39, 30, 0.55) 0%,
+      rgba(16, 39, 30, 0.3) 55%,
+      rgba(16, 39, 30, 0.12) 100%
+    ),
+    linear-gradient(0deg, rgba(16, 39, 30, 0.5), rgba(16, 39, 30, 0.5));
+}
+
+/* Contained text column — the container caps line length on wide screens. */
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+.textCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1120px;
+  margin-inline: auto;
+}
+
+/* Longer chip copy: one line where it fits; on small screens wrap cleanly into
+   a centered two-line badge (slightly smaller) instead of an ugly break. */
+.chip {
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .chip {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.4;
+    font-size: 12px;
+    padding-block: 9px;
+    border-radius: var(--r-md);
+    max-width: 32ch;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: clamp(36px, 4.2vw, 62px);
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  color: var(--on-green);
+  /* Wide enough that "HANDCRAFTED IN LOS ANGELES" stays on one line at 62px
+     (kept within the 1180 content container). Forced break via <br>. */
+  max-width: 1120px;
+  margin-top: 28px;
+}
+
+.lead {
+  color: var(--on-green);
+  opacity: 0.9;
+  font-size: clamp(16px, 1.15vw, 19px);
+  line-height: 1.6;
+  max-width: 46ch;
+  margin-top: 24px;
+}
+
+.actions {
+  margin-top: 36px;
+}
+.cta {
+  font-size: 15px;
+  padding: 18px 40px;
+}
+
+/* --- Staggered entrance (pure CSS, plays on load) --- */
+@media (prefers-reduced-motion: no-preference) {
+  .chip,
+  .title,
+  .lead,
+  .actions {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: hero-rise 0.9s ease forwards;
+    will-change: opacity, transform;
+  }
+  .chip {
+    animation-delay: 0.08s;
+  }
+  .title {
+    animation-delay: 0.22s;
+  }
+  .lead {
+    animation-delay: 0.38s;
+  }
+  .actions {
+    animation-delay: 0.52s;
+  }
+}
+
+@keyframes hero-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- Mobile: the initial header is the compact 68px bar --- */
+@media (max-width: 720px) {
+  .hero {
+    padding-block: 84px 28px;
+  }
+}
+
+/* --- Short viewports (~700px tall): tighten the vertical rhythm so everything
+   still fits on one screen without internal scroll — never shrink the H1. --- */
+@media (max-height: 700px) {
+  .hero {
+    padding-block: 96px 24px;
+  }
+  .title {
+    margin-top: 18px;
+  }
+  .lead {
+    margin-top: 16px;
+  }
+  .actions {
+    margin-top: 24px;
+  }
+}

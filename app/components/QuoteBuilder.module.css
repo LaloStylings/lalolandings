@@ -1,0 +1,475 @@
+/* ---- Full-screen modal (native <dialog>) ---- */
+.dialog {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: var(--bg);
+  color: var(--ink);
+  overflow: hidden;
+
+  /* fade + slide up on enter, reverse on exit (display/overlay discrete) */
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.22s ease, transform 0.22s ease,
+    display 0.22s allow-discrete, overlay 0.22s allow-discrete;
+}
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.dialog::backdrop {
+  background: var(--bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ---- Fixed header: wordmark + close, then progress ---- */
+.modalHeader {
+  flex: none;
+  padding: 18px var(--gutter) 16px;
+  border-bottom: 1px solid var(--line);
+}
+.modalHeaderTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modalLogo {
+  height: 30px;
+  width: auto;
+}
+.close {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.close:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.closeIcon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+.closeIcon::before,
+.closeIcon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--green);
+}
+.closeIcon::before {
+  transform: rotate(45deg);
+}
+.closeIcon::after {
+  transform: rotate(-45deg);
+}
+
+/* ---- Scrollable body, centered content ---- */
+.modalBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+.modalInner {
+  width: 100%;
+  max-width: 780px;
+  margin: auto; /* centers vertically when short, scrolls when tall */
+  padding: 48px var(--gutter) 64px;
+}
+
+/* Progress — pill filling green, with the label beside it. */
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+.progress {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--green);
+  transition: width 0.4s ease;
+}
+.progressLabel {
+  flex: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.question {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--ink);
+  line-height: 1.15;
+}
+.question:focus-visible {
+  outline: none;
+}
+.subtitle {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  margin-top: 12px;
+  max-width: 54ch;
+}
+
+/* ---- Card options: 3 columns desktop, 2 mobile (legibility first) ---- */
+.opts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 28px 0 8px;
+}
+.opt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 18px 16px;
+  min-height: 72px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.25s ease, background-color 0.25s ease,
+    box-shadow 0.25s ease, transform 0.25s ease;
+}
+.opt:hover {
+  border-color: rgba(16, 39, 30, 0.4);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+.optLabel {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.optHint {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.2;
+}
+/* Selected: green border 2px + faint green fill + round check. */
+.optOn {
+  border-color: var(--green);
+  border-width: 2px;
+  background: var(--green-5);
+  padding: 17px 15px; /* compensate the extra 1px of border */
+}
+.check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.check::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--on-green);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.optOn .check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---- Vision (textarea) step ---- */
+.visionField {
+  margin: 28px 0 8px;
+}
+.visionField .textarea {
+  min-height: 150px;
+}
+
+/* ---- Contact step ---- */
+.contact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 28px 0 8px;
+}
+/* Name spans the row; email + phone share the row below. */
+.contact .field:first-child {
+  grid-column: 1 / -1;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+}
+.label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.label span {
+  color: var(--green);
+}
+.input,
+.textarea {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--field-border);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.textarea {
+  resize: vertical;
+  min-height: 112px;
+}
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px var(--green-6);
+}
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+  border-color: #a5342b;
+}
+.fieldError {
+  color: #a5342b;
+  font-size: 12.5px;
+  margin-top: 8px;
+}
+
+.formError {
+  color: #a5342b;
+  font-size: 13.5px;
+  margin-top: 18px;
+}
+
+/* ---- Step navigation ---- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 34px;
+}
+.back {
+  padding: 14px 28px;
+}
+.back:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Success screen ---- */
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 16px 0 8px;
+  animation: success-in 0.4s ease both;
+}
+/* Brand signature: green diamond inside a faint green circle. */
+.successIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid rgba(16, 39, 30, 0.25);
+  animation: success-pop 0.45s ease both;
+}
+.successDiamond {
+  width: 20px;
+  height: 20px;
+  background: var(--green);
+  transform: rotate(45deg);
+}
+/* Cormorant Unicase uppercase (the .font-display class supplies the font). */
+.successTitle {
+  font-size: clamp(26px, 4vw, 36px);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  color: var(--green);
+}
+.successTitle:focus-visible {
+  outline: none;
+}
+.successBody {
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 52ch;
+}
+.successNote {
+  color: var(--ink-soft);
+  opacity: 0.75;
+  font-size: 13px;
+  max-width: 46ch;
+}
+@keyframes success-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .success,
+  .successIcon {
+    animation: none;
+  }
+  .check {
+    transition: none;
+  }
+}
+
+/* ---- In-modal close confirmation ---- */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(16, 39, 30, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: confirm-fade 0.2s ease;
+}
+.confirmBox {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 34px 32px;
+  text-align: center;
+  animation: confirm-pop 0.22s ease;
+}
+.confirmText {
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 26px;
+}
+.confirmActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+@keyframes confirm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes confirm-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confirmOverlay,
+  .confirmBox {
+    animation: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .opts {
+    grid-template-columns: 1fr 1fr;
+  }
+  .contact {
+    grid-template-columns: 1fr;
+  }
+  .modalInner {
+    padding: 32px var(--gutter) 48px;
+  }
+}

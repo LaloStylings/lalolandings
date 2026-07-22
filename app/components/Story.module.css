@@ -1,0 +1,40 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+.heading {
+  max-width: 14ch;
+  margin-top: 2px;
+}
+.body {
+  color: var(--ink-soft);
+  max-width: 52ch;
+  margin: 0;
+}
+.cta {
+  margin-top: 12px;
+}
+
+.media {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .media {
+    max-width: 460px;
+    order: -1;
+  }
+}

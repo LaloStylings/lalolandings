@@ -1,0 +1,181 @@
+.headerRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+.head {
+  align-items: flex-start;
+  text-align: left;
+  margin-bottom: 0;
+}
+
+/* Prev/next controls — desktop only. */
+.controls {
+  display: flex;
+  gap: 12px;
+  flex: none;
+}
+.arrow {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+}
+.arrow:hover:not(:disabled) {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.arrowIcon {
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--green);
+  border-bottom: 2px solid var(--green);
+}
+.arrowIcon[data-dir="prev"] {
+  transform: rotate(135deg);
+  margin-left: 4px;
+}
+.arrowIcon[data-dir="next"] {
+  transform: rotate(-45deg);
+  margin-right: 4px;
+}
+
+/* Desktop: the viewport doesn't scroll — the track moves by transform, so the
+   mouse wheel is free to scroll the page (Lenis) with no conflict. */
+.viewport {
+  overflow: hidden;
+}
+/* Track: left edge aligns to the 1180 container; bleeds to the right. */
+.track {
+  display: flex;
+  width: max-content; /* sizes to content, so the trailing padding is real */
+  gap: 20px;
+  /* Fixed side margin (40px desktop): cards never touch the viewport edge, and
+     because the track is max-content the transform end position keeps the right
+     padding intact. */
+  padding: 12px 40px 26px;
+  transition: transform 0.5s ease;
+  will-change: transform;
+}
+
+.story {
+  flex: 0 0 auto;
+  width: min(46vw, 620px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* Not a link — don't lift on hover; keep a gentle elevation. */
+.story:hover {
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
+.media {
+  padding: 14px 14px 0;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 22px 26px;
+}
+.pendingChip {
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.name {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--ink);
+}
+.body {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+.quote {
+  color: var(--green);
+  font-size: 15px;
+  font-style: italic;
+}
+
+/* Dots */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(30, 30, 28, 0.18);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.dotOn {
+  background: var(--green);
+  transform: scale(1.2);
+}
+
+@media (max-width: 1024px) {
+  .story {
+    width: min(64vw, 560px);
+  }
+}
+
+/* Mobile (<768px): native horizontal scroll + snap for swipe. scroll-padding
+   matches the track padding so snapping respects the 20px side margin. */
+@media (max-width: 767px) {
+  .viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .viewport::-webkit-scrollbar {
+    display: none;
+  }
+  .track {
+    transition: none;
+    padding-inline: 20px;
+  }
+  .story {
+    width: 84vw;
+    scroll-snap-align: start;
+  }
+  .controls {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition: none;
+  }
+}

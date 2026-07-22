@@ -1,0 +1,262 @@
+/* Full-bleed bar: the header spans the whole viewport width in both states
+   (the bg/blur/shadow live here). Only the inner content is capped, via
+   .container inside each layer. */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
+  height: 120px;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: height 0.3s ease, background-color 0.3s ease,
+    box-shadow 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease;
+}
+
+/* Solid, blurred, elevated once scrolled (or the mobile menu is open). */
+.scrolled,
+.menuOpen {
+  height: 68px;
+  background: rgba(250, 247, 242, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom-color: var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Two crossfaded layers stacked in the same box. */
+.layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.layer.on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+}
+.logoExpanded {
+  height: 34px;
+  width: auto;
+  /* hueso over the dark hero */
+  filter: brightness(0) invert(1);
+}
+.logoCompact {
+  height: 34px;
+  width: auto;
+  transition: filter 0.3s ease;
+}
+/* Compact logo: hueso while transparent over the hero, dark once solid. */
+.nav:not(.scrolled):not(.menuOpen) .logoCompact {
+  filter: brightness(0) invert(1);
+}
+.nav.scrolled .logoCompact,
+.nav.menuOpen .logoCompact {
+  filter: none;
+}
+
+/* ---- Expanded (two centered lines + CTA anchored right) ---- */
+/* Full-viewport content: fixed side padding (not a max-width container), so the
+   logo/menu center against the whole viewport and the CTA anchors near the edge. */
+.expandedInner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding-inline: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+/* Fading hairline between the logo and the links — initial state only.
+   It lives inside the expanded layer, so it vanishes on scroll (layer fades
+   out) and on mobile (layer is display:none). */
+.divider {
+  width: 100%;
+  max-width: 340px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(250, 247, 242, 0.18) 50%,
+    transparent
+  );
+}
+.expandedLinks {
+  display: flex;
+  gap: 34px;
+}
+.expandedCta {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ---- Compact (single row) ---- */
+.compactInner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding-inline: 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.compactLinks {
+  display: flex;
+  gap: 34px;
+  margin-left: auto;
+}
+.compactCta {
+  flex: none;
+}
+
+/* ---- Links ---- */
+.link {
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  color: var(--on-green);
+  padding-block: 6px;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.link:hover {
+  border-bottom-color: currentColor;
+}
+.nav.scrolled .link,
+.nav.menuOpen .link {
+  color: var(--ink);
+}
+.nav.scrolled .link:hover,
+.nav.menuOpen .link:hover {
+  color: var(--green);
+  border-bottom-color: var(--green);
+}
+
+/* ---- Mobile burger ---- */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.burger span {
+  display: block;
+  height: 1px;
+  width: 24px;
+  margin-inline: auto;
+  background: var(--on-green);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.nav.scrolled .burger span,
+.nav.menuOpen .burger span {
+  background: var(--green);
+}
+.menuOpen .burger span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+.menuOpen .burger span:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+/* ---- Mobile dropdown menu ---- */
+.mobile {
+  position: absolute;
+  inset: 68px 0 auto 0;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.mobileLinks {
+  display: flex;
+  flex-direction: column;
+  padding: 8px var(--gutter) 26px;
+}
+.mobileLink {
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---- Sticky mobile CTA ---- */
+.stickyCta {
+  position: fixed;
+  inset: auto 12px 12px 12px;
+  z-index: 45;
+  display: none;
+  text-align: center;
+  background: var(--green);
+  color: var(--on-green);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 15px 20px;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-md);
+}
+
+/* ---- Mobile: compact only, no two-line layout ---- */
+@media (max-width: 860px) {
+  .nav,
+  .nav.scrolled,
+  .nav.menuOpen {
+    height: 68px;
+  }
+  .expanded {
+    display: none;
+  }
+  /* compact is always the active layer on mobile */
+  .compact {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .compactInner {
+    padding-inline: 20px;
+  }
+  .compactLinks,
+  .compactCta {
+    display: none;
+  }
+  .burger {
+    display: flex;
+  }
+  .stickyCta {
+    display: block;
+  }
+}
+
+@media (min-width: 861px) {
+  .mobile {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .layer,
+  .logoCompact,
+  .burger span {
+    transition: none;
+  }
+}

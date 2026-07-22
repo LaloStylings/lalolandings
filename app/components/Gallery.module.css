@@ -1,0 +1,58 @@
+/* Wider than the page's 1180 — up to 1560 — with fixed side padding so the grid
+   comes close to the edges without touching them. Header stays in .container. */
+.galleryWrap {
+  max-width: 1560px;
+  margin-inline: auto;
+  padding-inline: 40px;
+}
+
+/* Wider intro paragraph (~3 lines) — proportional to the H2, still well inside
+   the gallery width. Double class bumps specificity so it reliably overrides the
+   global .lede 56ch cap regardless of stylesheet order. */
+.intro.intro {
+  max-width: 900px;
+}
+
+/* 7 photos: a tall featured piece (spans 2 rows, 1 column) plus 6 normal cells.
+   No image spans 2 columns, so none gets stretched beyond its resolution. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 275px;
+  gap: 18px;
+}
+
+.tall {
+  grid-row: span 2;
+}
+.sq {
+  grid-row: span 1;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 238px;
+  }
+  .tall {
+    grid-row: span 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .galleryWrap {
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 460px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 325px;
+  }
+  .tall,
+  .sq {
+    grid-row: span 1;
+    grid-column: span 1;
+  }
+}
