@@ -12,6 +12,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* centers the value in cells without a label (e.g. Free Consultation) */
   gap: 12px;
   text-align: center;
   padding: 12px;
@@ -31,15 +32,15 @@
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 34px;
-  line-height: 1;
+  line-height: 1.05;
   color: var(--green);
 }
-.pendingChip {
-  background: var(--bg-soft);
-  color: var(--ink-soft);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+/* Multi-word values ("2 to 4 weeks", "Free Consultation") drop a size and stay
+   on one line so the four cells keep an even visual hierarchy and the row height
+   never breaks. Scales down only on very narrow phones (2x2 grid). */
+.valueLong {
+  font-size: clamp(16px, 4.5vw, 24px);
+  white-space: nowrap;
 }
 
 .label {

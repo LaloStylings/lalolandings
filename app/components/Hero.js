@@ -11,11 +11,11 @@ export default function Hero() {
         <div className={styles.scrim} aria-hidden="true" />
       </div>
 
-      <div className={`container ${styles.inner}`}>
+      <div className={styles.inner}>
         <div className={styles.textCol}>
-          {/* Founding year (1994) and neighborhood are wireframe placeholders. */}
+          {/* Founded 1995 (31 years of craftsmanship). */}
           <span className={`chip chip--on-green ${styles.chip}`}>
-            Since 1994 · Free Consultation
+            Since 1995 · Free Consultation
           </span>
           <h1 className={styles.title}>
             Custom Fine Jewelry

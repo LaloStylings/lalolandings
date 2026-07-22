@@ -8,9 +8,9 @@
      100vh is the fallback for older browsers. */
   height: 100vh;
   height: 100dvh;
-  /* Top padding = initial (expanded) header height (~120px), so the block sits
+  /* Top padding ~ initial (expanded) header height (~148px), so the block sits
      optically centered in the visible space below the fixed header. */
-  padding-block: 120px 40px;
+  padding-block: 158px 40px;
   background: var(--green);
   overflow: hidden;
 }
@@ -37,20 +37,58 @@
   background-position: center right;
 }
 
-/* Scrim: content is centered now, so the overlay is radial — darkest at the
-   center where the text lives, easing out toward the edges so the video still
-   breathes at the corners. Flat base keeps AA over bright video frames. */
+/* Scrim: layered, top-heavy and organic. The nav lives at the very top, so the
+   darkening is strongest there and eases open toward the bottom where the video
+   should breathe. Built from three coordinated layers, all in brand green (never
+   pure black):
+     1. A soft off-center radial that lifts contrast around the centered text.
+     2. A many-stop vertical gradient (eased falloff) — the main darkener. The
+        extra stops are deliberate: they keep the ramp below the 8-bit banding
+        threshold so no line or band shows.
+     3. A faint grain (::after) that dithers the ramp, killing any residual
+        banding on smooth video frames.
+   Text contrast over the *moving* video is handled by text-shadow on the title
+   and lead, so the overlay itself can stay light and let the video read. */
 .scrim {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: radial-gradient(
-      ellipse 85% 80% at 50% 50%,
-      rgba(16, 39, 30, 0.55) 0%,
-      rgba(16, 39, 30, 0.3) 55%,
-      rgba(16, 39, 30, 0.12) 100%
+  background:
+    radial-gradient(
+      130% 105% at 50% 33%,
+      rgba(16, 39, 30, 0.30) 0%,
+      rgba(16, 39, 30, 0.18) 34%,
+      rgba(16, 39, 30, 0.07) 60%,
+      rgba(16, 39, 30, 0) 80%
     ),
-    linear-gradient(0deg, rgba(16, 39, 30, 0.5), rgba(16, 39, 30, 0.5));
+    linear-gradient(
+      to bottom,
+      rgba(16, 39, 30, 0.84) 0%,
+      rgba(16, 39, 30, 0.82) 5%,
+      rgba(16, 39, 30, 0.77) 11%,
+      rgba(16, 39, 30, 0.69) 18%,
+      rgba(16, 39, 30, 0.60) 26%,
+      rgba(16, 39, 30, 0.50) 35%,
+      rgba(16, 39, 30, 0.41) 44%,
+      rgba(16, 39, 30, 0.33) 54%,
+      rgba(16, 39, 30, 0.26) 64%,
+      rgba(16, 39, 30, 0.20) 74%,
+      rgba(16, 39, 30, 0.14) 85%,
+      rgba(16, 39, 30, 0.09) 100%
+    );
+}
+/* Grain overlay: a seamless fractal-noise tile at very low opacity, blended so
+   it reads as texture, not as a gray film. It breaks the smooth ramp into
+   dithered steps — the reliable cure for gradient banding. */
+.scrim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
 /* Contained text column — the container caps line length on wide screens. */
@@ -58,6 +96,10 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  /* Extra side padding so the H1 and lead don't crowd the edge on mid screens. */
+  padding-inline: 40px;
 }
 .textCol {
   display: flex;
@@ -97,15 +139,19 @@
      (kept within the 1180 content container). Forced break via <br>. */
   max-width: 1120px;
   margin-top: 28px;
+  /* Soft green halo: guarantees AA on the title over bright/moving video frames
+     without asking the scrim to carry all the contrast. */
+  text-shadow: 0 1px 3px rgba(16, 39, 30, 0.45), 0 2px 28px rgba(16, 39, 30, 0.5);
 }
 
 .lead {
   color: var(--on-green);
-  opacity: 0.9;
+  opacity: 0.92;
   font-size: clamp(16px, 1.15vw, 19px);
   line-height: 1.6;
-  max-width: 46ch;
+  max-width: 62ch;
   margin-top: 24px;
+  text-shadow: 0 1px 2px rgba(16, 39, 30, 0.5), 0 1px 16px rgba(16, 39, 30, 0.45);
 }
 
 .actions {
@@ -151,7 +197,10 @@
 /* --- Mobile: the initial header is the compact 68px bar --- */
 @media (max-width: 720px) {
   .hero {
-    padding-block: 84px 28px;
+    padding-block: 92px 28px;
+  }
+  .inner {
+    padding-inline: 24px;
   }
 }
 
@@ -159,7 +208,7 @@
    still fits on one screen without internal scroll — never shrink the H1. --- */
 @media (max-height: 700px) {
   .hero {
-    padding-block: 96px 24px;
+    padding-block: 118px 24px;
   }
   .title {
     margin-top: 18px;

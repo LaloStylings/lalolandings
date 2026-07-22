@@ -15,6 +15,16 @@
 // Card steps (1-2) auto-advance on selection. No copy uses em dashes.
 // ============================================================================
 
+import {
+  RingIcon,
+  EngagementRingIcon,
+  WeddingBandIcon,
+  BraceletIcon,
+  NecklaceIcon,
+  EarringsIcon,
+  NotSureIcon,
+} from "./QuoteIcons";
+
 export const QUOTE_STEPS = [
   {
     id: "occasion",
@@ -39,16 +49,13 @@ export const QUOTE_STEPS = [
     type: "cards",
     // Many options: legibility over imagery (2 cols mobile, 3 desktop).
     options: [
-      { value: "Ring" },
-      { value: "Engagement ring" },
-      { value: "Wedding band" },
-      { value: "Bracelet" },
-      { value: "Necklace or pendant" },
-      { value: "Earrings" },
-      { value: "Brooch or pin" },
-      { value: "Cufflinks" },
-      { value: "Redesign an existing piece" },
-      { value: "Not sure yet" },
+      { value: "Ring", icon: RingIcon },
+      { value: "Engagement ring", icon: EngagementRingIcon },
+      { value: "Wedding band", icon: WeddingBandIcon },
+      { value: "Bracelet", icon: BraceletIcon },
+      { value: "Necklace or pendant", icon: NecklaceIcon },
+      { value: "Earrings", icon: EarringsIcon },
+      { value: "Not sure yet", icon: NotSureIcon },
     ],
   },
   {

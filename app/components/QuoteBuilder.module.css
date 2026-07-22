@@ -142,9 +142,10 @@
 .question {
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(22px, 3vw, 30px);
+  font-size: clamp(24px, 2.6vw, 34px);
   color: var(--ink);
   line-height: 1.15;
+  text-align: center;
 }
 .question:focus-visible {
   outline: none;
@@ -154,16 +155,29 @@
   font-size: 14.5px;
   margin-top: 12px;
   max-width: 54ch;
+  margin-inline: auto;
+  text-align: center;
+}
+/* Subtle divider under the step header: thin, short, centered, green at ~20%. */
+.headDivider {
+  display: block;
+  width: 90px;
+  height: 1px;
+  margin: 24px auto;
+  background: rgba(16, 39, 30, 0.2);
 }
 
-/* ---- Card options: 3 columns desktop, 2 mobile (legibility first) ---- */
+/* ---- Card options: 3 columns desktop, 2 mobile. Flex-wrap + center so an odd
+   last card (e.g. the 7th) is centered instead of left-hanging. ---- */
 .opts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
   margin: 28px 0 8px;
 }
 .opt {
+  flex: 0 0 calc((100% - 24px) / 3); /* 3 columns, 2 gaps of 12px */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -186,6 +200,19 @@
   border-color: rgba(16, 39, 30, 0.4);
   box-shadow: var(--shadow-md);
   transform: translateY(-3px);
+}
+/* Card icon: green at 55% in rest, full green on hover / selected. The 4px flex
+   gap plus this margin gives ~14px between the icon and the label. */
+.optIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+  color: rgba(16, 39, 30, 0.55);
+  transition: color 0.25s ease;
+}
+.opt:hover .optIcon,
+.optOn .optIcon {
+  color: var(--green);
 }
 .optLabel {
   font-size: 14.5px;
@@ -463,8 +490,8 @@
 }
 
 @media (max-width: 620px) {
-  .opts {
-    grid-template-columns: 1fr 1fr;
+  .opt {
+    flex-basis: calc((100% - 12px) / 2); /* 2 columns, 1 gap of 12px */
   }
   .contact {
     grid-template-columns: 1fr;

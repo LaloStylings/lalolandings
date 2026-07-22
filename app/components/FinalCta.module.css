@@ -40,13 +40,13 @@
   line-height: 1.08;
   letter-spacing: 0.03em;
 }
-/* Editorial accent: real italic serif, normal case (not the uppercase unicase). */
+/* Editorial accent: real italic serif, kept UPPERCASE (Cormorant Unicase has no
+   true lowercase, so a lowercase italic deforms — slanted caps read cleanly). */
 .accent {
   font-family: var(--font-cormorant-italic), Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
+  text-transform: uppercase;
 }
 .body {
   color: var(--on-green-soft);

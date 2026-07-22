@@ -319,11 +319,13 @@ export default function QuoteBuilder() {
               {step.subtitle && (
                 <p className={styles.subtitle}>{step.subtitle}</p>
               )}
+              <span className={styles.headDivider} aria-hidden="true" />
 
               {step.type === "cards" ? (
                 <div className={styles.opts} role="group" aria-label={step.title}>
                   {step.options.map((opt) => {
                     const selected = answers[step.id] === opt.value;
+                    const Icon = opt.icon;
                     return (
                       <button
                         type="button"
@@ -332,6 +334,7 @@ export default function QuoteBuilder() {
                         aria-pressed={selected}
                         onClick={() => select(opt.value)}
                       >
+                        {Icon && <Icon className={styles.optIcon} />}
                         <span className={styles.optLabel}>{opt.value}</span>
                         {opt.hint && (
                           <span className={styles.optHint}>{opt.hint}</span>

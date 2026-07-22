@@ -35,6 +35,7 @@ export default function MediaFrame({
   tone = "light",
   hideLabel = false,
   className = "",
+  draggable,
 }) {
   const style = stretch
     ? { height: "100%", borderRadius: radius }
@@ -53,6 +54,7 @@ export default function MediaFrame({
           sizes={sizes}
           priority={priority}
           loading={priority ? undefined : loading}
+          draggable={draggable}
           className={styles.img}
           style={{ objectFit: "cover", objectPosition }}
         />

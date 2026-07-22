@@ -15,7 +15,7 @@ export default function Story() {
             and can&rsquo;t be automated.
           </p>
           <p className={styles.body}>
-            Thirty years later, every piece that leaves our studio is still cast,
+            Thirty-one years later, every piece that leaves our studio is still cast,
             set, and polished by hand. We&rsquo;re not just jewelers. We&rsquo;re
             artisans, storytellers, and keepers of a craft passed down through
             generations.

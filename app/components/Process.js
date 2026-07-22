@@ -31,7 +31,7 @@ export default function Process() {
         <div className="section-head">
           <span className="chip">The Process</span>
           <h2 className="h2">How It Works</h2>
-          <p className="lede">
+          <p className={`lede ${styles.lede}`}>
             Four steps. No surprises, no commitment until you approve the design.
           </p>
         </div>

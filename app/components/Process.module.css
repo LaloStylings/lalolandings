@@ -1,3 +1,16 @@
+/* Keep the lede on a single line (doubled selector beats the global .lede's
+   56ch cap). Falls back to wrapping on narrow screens where it wouldn't fit. */
+.lede.lede {
+  max-width: none;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .lede.lede {
+    max-width: 56ch;
+    white-space: normal;
+  }
+}
+
 .grid {
   list-style: none;
   display: grid;

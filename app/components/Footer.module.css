@@ -7,7 +7,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  /* Three columns now (Studio merges address + phone), so a single-item Contact
+     column doesn't look empty. */
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 34px;
 }
 
@@ -50,16 +52,13 @@
   color: var(--green);
   border-bottom-color: var(--green);
 }
-.placeholder {
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  line-height: 1.6;
+/* Address block: override the UA italic and let the two-line link size cleanly. */
+.address {
+  font-style: normal;
 }
-.placeholderLink {
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  padding-block: 7px;
-  font-style: italic;
+.address .link {
+  display: inline-block;
+  line-height: 1.6;
 }
 
 .legal {

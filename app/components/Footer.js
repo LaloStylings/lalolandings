@@ -10,8 +10,9 @@ const SOCIAL = [
 ];
 
 // Deliberately minimal — this is a campaign landing, not a home page. Only
-// trust-building links stay (physical address, real contact, socials); every
-// other link would be a leak of paid traffic. Phone/address/email still pending.
+// trust-building links stay (physical address, real phone, socials); every
+// other link would be a leak of paid traffic. Email/WhatsApp still pending, so
+// they're omitted entirely rather than shown as dead placeholders.
 export default function Footer() {
   return (
     <footer className={styles.footer}>
@@ -35,21 +36,21 @@ export default function Footer() {
 
           <div className={styles.col}>
             <p className={styles.colHead}>Studio</p>
-            {/* Placeholder — real street address pending. */}
-            <p className={styles.placeholder}>
-              [ Studio address ]
-              <br />
-              Los Angeles, CA
-            </p>
-          </div>
-
-          <div className={styles.col}>
-            <p className={styles.colHead}>Contact</p>
-            {/* Placeholders — the current +213 number is an Algeria code and
-                must be replaced with the real LA number. */}
-            <span className={styles.placeholderLink}>[ Phone ]</span>
-            <span className={styles.placeholderLink}>[ Email ]</span>
-            <span className={styles.placeholderLink}>[ WhatsApp ]</span>
+            <address className={styles.address}>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=610+S.+Broadway+Suite+320+Los+Angeles+CA+90014"
+                className={styles.link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                610 S. Broadway Suite 320
+                <br />
+                Los Angeles, CA 90014
+              </a>
+            </address>
+            <a href="tel:+12134313250" className={styles.link}>
+              (213) 431-3250
+            </a>
           </div>
 
           <div className={styles.col}>
