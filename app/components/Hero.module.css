@@ -220,3 +220,21 @@
     margin-top: 24px;
   }
 }
+
+/* --- Mobile + short viewport (e.g. 360x640): tighten spacing so everything
+   fits in 100dvh without clipping. Never shrink the H1. Placed last so it wins
+   over the desktop short-viewport rule above. --- */
+@media (max-width: 720px) and (max-height: 740px) {
+  .hero {
+    padding-block: 84px 18px;
+  }
+  .title {
+    margin-top: 16px;
+  }
+  .lead {
+    margin-top: 14px;
+  }
+  .actions {
+    margin-top: 20px;
+  }
+}

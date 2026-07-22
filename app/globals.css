@@ -53,7 +53,7 @@
 }
 
 /* Clearance so the floating mobile CTA pill never covers page content. */
-@media (max-width: 860px) {
+@media (max-width: 899px) {
   body {
     padding-bottom: 84px;
   }
@@ -81,6 +81,10 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Safety net: no stray element may cause horizontal scroll on mobile.
+     `clip` (unlike `hidden`) doesn't create a scroll container, so it won't
+     break the fixed nav / sticky CTA. */
+  overflow-x: clip;
 }
 
 img,

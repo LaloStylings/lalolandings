@@ -63,6 +63,82 @@ function buildEmail(data) {
   return `NEW DESIGN REQUEST\n\n${brief}\n\n${contact}\n`;
 }
 
+// Escape user-supplied text before it goes into HTML, so a field containing tags
+// (or quotes, in an href) can't break the layout or inject markup.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Brand-styled HTML email. Table-based layout with inline styles only (Outlook
+// ignores <style> and doesn't do flexbox/grid), system sans-serif, no webfonts or
+// remote images. Empty fields (e.g. optional Phone) are skipped entirely.
+function buildEmailHtml(data) {
+  const clean = (name) =>
+    typeof data[name] === "string" ? data[name].trim() : "";
+
+  const nameEsc = escapeHtml(clean("name"));
+  const emailEsc = escapeHtml(clean("email"));
+
+  const FIELDS = [
+    { key: "occasion", label: "Occasion" },
+    { key: "lookingFor", label: "Looking for" },
+    { key: "vision", label: "Vision", multiline: true },
+    { key: "name", label: "Name" },
+    { key: "email", label: "Email", type: "email" },
+    { key: "phone", label: "Phone", type: "tel" },
+  ];
+
+  const cells = [];
+  for (const f of FIELDS) {
+    const raw = clean(f.key);
+    if (!raw) continue; // skip empty rows (e.g. Phone when not provided)
+    let value;
+    if (f.type === "email") {
+      value = `<a href="mailto:${escapeHtml(
+        raw
+      )}" style="color:#10271E;text-decoration:underline;">${escapeHtml(
+        raw
+      )}</a>`;
+    } else if (f.type === "tel") {
+      const tel = raw.replace(/[^\d+]/g, "");
+      value = `<a href="tel:${escapeHtml(
+        tel
+      )}" style="color:#10271E;text-decoration:underline;">${escapeHtml(
+        raw
+      )}</a>`;
+    } else if (f.multiline) {
+      value = escapeHtml(raw).replace(/\r?\n/g, "<br>");
+    } else {
+      value = escapeHtml(raw);
+    }
+    cells.push({ label: f.label, value });
+  }
+
+  const rows = cells
+    .map((c, i) => {
+      const border =
+        i < cells.length - 1 ? "border-bottom:1px solid #EAE4D9;" : "";
+      return `<tr><td style="padding:14px 0;${border}"><div style="color:#A39E92;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;">${c.label}</div><div style="margin-top:5px;color:#2A2A28;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;">${c.value}</div></td></tr>`;
+    })
+    .join("");
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#FAF7F2;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF7F2;"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:#FAF7F2;">
+<tr><td style="background:#10271E;padding:24px;text-align:center;"><span style="color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:bold;letter-spacing:0.28em;">LALO STYLINGS</span></td></tr>
+<tr><td style="padding:32px 28px 8px;"><div style="color:#10271E;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;">New design request</div><div style="margin-top:6px;color:#10271E;font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:bold;">${nameEsc}</div></td></tr>
+<tr><td style="padding:8px 28px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table></td></tr>
+<tr><td style="padding:24px 28px 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:#10271E;border-radius:6px;"><a href="mailto:${emailEsc}" style="display:inline-block;padding:14px 30px;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;text-decoration:none;">Reply to ${nameEsc}</a></td></tr></table></td></tr>
+<tr><td style="padding:0 28px 28px;text-align:center;"><div style="color:#A39E92;font-family:Arial,Helvetica,sans-serif;font-size:12px;">Sent from mkt.lalostylings.com</div></td></tr>
+</table></td></tr></table>
+</body></html>`;
+}
+
 export async function POST(request) {
   let data;
   try {
@@ -111,6 +187,7 @@ export async function POST(request) {
         to,
         reply_to: data.email.trim(),
         subject: `New design request: ${name}`,
+        html: buildEmailHtml(data),
         text: buildEmail(data),
       }),
     });

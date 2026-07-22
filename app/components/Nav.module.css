@@ -172,38 +172,142 @@
 .nav.menuOpen .burger span {
   background: var(--green);
 }
-.menuOpen .burger span:first-child {
-  transform: translateY(3.5px) rotate(45deg);
+/* ---- Full-screen overlay menu (mobile / tablet) ---- */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100dvh;
+  z-index: 60;
+  display: none; /* flex on mobile (below), none on desktop */
+  flex-direction: column;
+  background: #10271e;
+  color: var(--on-green);
+  /* Enter: fade + slide from the top. */
+  opacity: 0;
+  transform: translateY(-12px);
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
-.menuOpen .burger span:last-child {
-  transform: translateY(-3.5px) rotate(-45deg);
+.overlayOpen {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
 }
 
-/* ---- Mobile dropdown menu ---- */
-.mobile {
-  position: absolute;
-  inset: 76px 0 auto 0;
-  background: var(--bg);
-  border-top: 1px solid var(--line);
-  box-shadow: var(--shadow-sm);
+.overlayHeader {
+  flex: none;
+  height: 76px;
+  padding-inline: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.mobileLinks {
+.overlayLogo {
+  height: 34px;
+  width: auto;
+  filter: brightness(0) invert(1); /* hueso over the green */
+}
+.overlayClose {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line-on-green);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex: none;
+}
+.overlayCloseIcon {
+  position: absolute;
+  inset: 0;
+}
+.overlayCloseIcon::before,
+.overlayCloseIcon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 1.5px;
+  background: var(--on-green);
+}
+.overlayCloseIcon::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.overlayCloseIcon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.overlayMain {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 8px var(--gutter) 26px;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px 20px;
 }
-.mobileLink {
-  font-size: 15px;
-  letter-spacing: 0.01em;
-  color: var(--ink);
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
+.overlayLinks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+.overlayLink {
+  font-family: var(--font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: 28px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--on-green);
+}
+.overlayDivider {
+  width: 200px;
+  max-width: 60%;
+  height: 1px;
+  background: rgba(250, 247, 242, 0.15);
+}
+.overlayCta {
+  min-width: 260px;
+  text-align: center;
+}
+.overlayFoot {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+}
+.overlayPhone {
+  color: var(--on-green);
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+.overlaySocials {
+  display: flex;
+  gap: 22px;
+}
+.overlaySocial {
+  color: var(--on-green);
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+.overlaySocial:hover {
+  opacity: 1;
 }
 
-/* ---- Sticky mobile CTA ---- */
+/* ---- Sticky mobile CTA (hidden until the hero scrolls away) ---- */
 .stickyCta {
   position: fixed;
-  inset: auto 12px 12px 12px;
+  inset: auto 12px calc(12px + env(safe-area-inset-bottom, 0px)) 12px;
   z-index: 45;
   display: none;
   text-align: center;
@@ -215,10 +319,19 @@
   padding: 15px 20px;
   border-radius: var(--r-pill);
   box-shadow: var(--shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+.stickyOn {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
 }
 
-/* ---- Mobile: compact only, no two-line layout ---- */
-@media (max-width: 860px) {
+/* ---- Mobile / tablet: compact bar + burger, overlay available ---- */
+@media (max-width: 899px) {
   .nav,
   .nav.scrolled,
   .nav.menuOpen {
@@ -243,14 +356,11 @@
   .burger {
     display: flex;
   }
+  .overlay {
+    display: flex;
+  }
   .stickyCta {
     display: block;
-  }
-}
-
-@media (min-width: 861px) {
-  .mobile {
-    display: none;
   }
 }
 
@@ -258,7 +368,9 @@
   .nav,
   .layer,
   .logoCompact,
-  .burger span {
+  .burger span,
+  .overlay,
+  .stickyCta {
     transition: none;
   }
 }
