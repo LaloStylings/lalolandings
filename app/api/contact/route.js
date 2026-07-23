@@ -10,6 +10,7 @@
 // Optional:
 //   CONTACT_EMAIL_FROM  verified sender (defaults to the verified lalostylings.com
 //                       domain sender below)
+//   CRM_ENDPOINT        SCNDAL CRM lead intake URL (defaults to CRM_DEFAULT_ENDPOINT)
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -139,6 +140,94 @@ function buildEmailHtml(data) {
 </body></html>`;
 }
 
+// ---------------------------------------------------------------------------
+// SCNDAL CRM
+// ---------------------------------------------------------------------------
+// Secondary delivery: the lead is mirrored into the CRM. Unauthenticated
+// endpoint, no API key. This is best-effort and must never affect the response
+// the visitor gets: the email is the critical path, the CRM is not.
+
+const CRM_DEFAULT_ENDPOINT =
+  "https://scndal-crm.vercel.app/api/leads/lalostylings?source=website";
+const CRM_TIMEOUT_MS = 5000;
+
+// The six keys travel exactly as the handler received them: same camelCase
+// names, same values. occasion / lookingFor are case- and space-sensitive
+// ("Just for me", "Necklace or pendant") and may carry accents
+// ("Quinceañera"), so nothing here lowercases, slugifies or strips accents.
+// Either may be undefined when the visitor skipped that step; JSON.stringify
+// simply omits those keys, which the CRM accepts.
+async function sendToCrm(data) {
+  const endpoint = process.env.CRM_ENDPOINT || CRM_DEFAULT_ENDPOINT;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CRM_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        occasion: data.occasion,
+        lookingFor: data.lookingFor,
+        vision: data.vision,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error("[crm] Lead rejected", res.status, detail);
+      return;
+    }
+  } catch (err) {
+    // Includes the AbortError raised when the 5s timeout fires.
+    console.error("[crm] Delivery failed", err?.name || "Error", err?.message || err);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Resend delivery (the critical path). Resolves to null on success, or to the
+// Response to return to the client on failure.
+async function sendEmail(data, { apiKey, to, from, name }) {
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to,
+        reply_to: data.email.trim(),
+        subject: `New design request: ${name}`,
+        html: buildEmailHtml(data),
+        text: buildEmail(data),
+      }),
+    });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error("[contact] Resend error", res.status, detail);
+      return Response.json(
+        { error: "Could not send your request. Please try again." },
+        { status: 502 }
+      );
+    }
+  } catch (err) {
+    console.error("[contact] Network error", err);
+    return Response.json(
+      { error: "Could not send your request. Please try again." },
+      { status: 502 }
+    );
+  }
+  return null;
+}
+
 export async function POST(request) {
   let data;
   try {
@@ -175,38 +264,23 @@ export async function POST(request) {
 
   const name = data.name.trim();
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to,
-        reply_to: data.email.trim(),
-        subject: `New design request: ${name}`,
-        html: buildEmailHtml(data),
-        text: buildEmail(data),
-      }),
-    });
+  // Both deliveries start at once so the CRM adds no latency to the response.
+  // They are independent: sendToCrm swallows its own errors, so a CRM outage
+  // can never turn a delivered email into a failure screen for the visitor.
+  const [emailResult] = await Promise.allSettled([
+    sendEmail(data, { apiKey, to, from, name }),
+    sendToCrm(data),
+  ]);
 
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error("[contact] Resend error", res.status, detail);
-      return Response.json(
-        { error: "Could not send your request. Please try again." },
-        { status: 502 }
-      );
-    }
-  } catch (err) {
-    console.error("[contact] Network error", err);
+  // sendEmail catches its own errors, so a rejection here would be unexpected.
+  if (emailResult.status === "rejected") {
+    console.error("[contact] Unexpected email failure", emailResult.reason);
     return Response.json(
       { error: "Could not send your request. Please try again." },
       { status: 502 }
     );
   }
+  if (emailResult.value) return emailResult.value;
 
   return Response.json({ ok: true });
 }
