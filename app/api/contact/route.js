@@ -11,6 +11,8 @@
 //   CONTACT_EMAIL_FROM  verified sender (defaults to the verified lalostylings.com
 //                       domain sender below)
 //   CRM_ENDPOINT        SCNDAL CRM lead intake URL (defaults to CRM_DEFAULT_ENDPOINT)
+// Required for CRM delivery (the email is sent regardless):
+//   CRM_WEBHOOK_SECRET  bearer token identifying this webhook source to the CRM
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -143,12 +145,16 @@ function buildEmailHtml(data) {
 // ---------------------------------------------------------------------------
 // SCNDAL CRM
 // ---------------------------------------------------------------------------
-// Secondary delivery: the lead is mirrored into the CRM. Unauthenticated
-// endpoint, no API key. This is best-effort and must never affect the response
-// the visitor gets: the email is the critical path, the CRM is not.
+// Secondary delivery: the lead is mirrored into the CRM. The endpoint is
+// authenticated: CRM_WEBHOOK_SECRET is the secret of this webhook source, sent
+// as a bearer token. It stays server-side (no NEXT_PUBLIC_ prefix), and this
+// handler is the only caller. Clients with several sources get one variable per
+// source (CRM_WEBHOOK_SECRET_CONTACTO, ...); this site has one, so no suffix.
+// This is best-effort and must never affect the response the visitor gets: the
+// email is the critical path, the CRM is not.
 
 const CRM_DEFAULT_ENDPOINT =
-  "https://scndal-crm.vercel.app/api/leads/lalostylings?source=website";
+  "https://api.scndal.com/leads/lalostylings?source=website";
 const CRM_TIMEOUT_MS = 5000;
 
 // The six keys travel exactly as the handler received them: same camelCase
@@ -157,15 +163,22 @@ const CRM_TIMEOUT_MS = 5000;
 // ("Quinceañera"), so nothing here lowercases, slugifies or strips accents.
 // Either may be undefined when the visitor skipped that step; JSON.stringify
 // simply omits those keys, which the CRM accepts.
+// A missing CRM_WEBHOOK_SECRET does NOT skip the request: it goes out and the
+// CRM answers 401, which is traceable in the CRM's own logs. Skipping would
+// leave nothing to find anywhere -- exactly the invisible failure to avoid.
 async function sendToCrm(data) {
   const endpoint = process.env.CRM_ENDPOINT || CRM_DEFAULT_ENDPOINT;
+  const secret = process.env.CRM_WEBHOOK_SECRET ?? "";
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), CRM_TIMEOUT_MS);
 
   try {
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name: data.name,
         email: data.email,
